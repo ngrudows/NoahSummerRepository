@@ -1,4 +1,4 @@
-function [ ] = BayesianFunction( M, x, d, absTol, densityOne, densityTwo, densityThree )
+function [ ] = BayesianFunction( M, x, d, absTol, densityChoice)
 d=d-1;
 x=x';
 logit = @(b,x,d) exp(b(1) + sum(bsxfun(@times,b(2:d+1),x(:,1:d)),2))./...
@@ -39,7 +39,7 @@ betaSobol_s = zeros(n,d);
 betaSobol_mle_s = zeros(n,d);    
 betaSobol_prod_s = zeros(n,d);
 
-if densityOne == 1
+if densityChoice(1)
     for i = 1:n
         [q1,q1_s,out_param1,qm1] = cubSobolBayesian(f1,post,absTol,d);
         [q2,q2_s,out_param2,qm2] = cubSobolBayesian(f2,post,absTol,d);
@@ -51,7 +51,7 @@ if densityOne == 1
     end
 end
 
-if densityTwo == 1
+if densityChoice(2)
     for i=1:n
         [q1_mle,q1_mle_s,out_param1_mle,qm_mle1] = cubSobolBayesian_IS(f1_mle,post_mle,absTol,A0,betaMLE,d);
         [q2_mle,q2_mle_s,out_param2_mle,~] = cubSobolBayesian_IS(f2_mle,post_mle,absTol,A0,betaMLE,d);
@@ -63,7 +63,7 @@ if densityTwo == 1
     end
 end
    
-if densityThree == 1
+if densityChoice(3)
     for i=1:n
         %Error Obtained: Error using horzcat.  Dimensions of matrices being
         %concatenated are not consistent.
