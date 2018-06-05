@@ -1,5 +1,5 @@
-function [ ] = BayesianFunction( M, x, d, absTol, densityChoice)
-d=d-1;
+function [ ] = BayesianFunction( M, x, dim, absTol, densityChoice)
+d=dim-1;
 x=x';
 logit = @(b,x,d) exp(b(1) + sum(bsxfun(@times,b(2:d+1),x(:,1:d)),2))./...
     (1+exp(b(1) + sum(bsxfun(@times,b(2:d+1),x(:,1:d)),2)));
@@ -64,25 +64,30 @@ if densityChoice(2)
 end
    
 if densityChoice(3)
+    A=inv(-Hessian);
+    Ainv=-Hessian;
+    B=eye(dim);
+    C=inv(Ainv+B);
+    c=C.*Ainv.*betaMLE;
+    zc=(0.5./pi).^(-dim./2).*sqrt(det(C)./(det(A))).*exp(0.5.*(c'.*(Ainv+B).*c-betaMLE'...
+        .*Ainv.*betaMLE));
+    [U,S,~]=svd(A);
+    A0=U*sqrt(S);
+    [U,S,~]=svd(C);
+    A_new=U*sqrt(S);
+    post_prod = @(b)(zc).*post(b).*(det(Hessian))^(-0.5).*exp(-0.5.*...
+        (Hessian(1,1).*(b(:,1)-betaMLE(1)).^2+Hessian(2,2).*(b(:,2)-betaMLE(2))...
+        .^2+2.*Hessian(1,2).*(b(:,1)-betaMLE(1)).*(b(:,2)-betaMLE(2))));
+    f1_prod = @(b) post_prod(b).*b(:,1);
+    f2_prod = @(b) post_prod(b).*b(:,2);
     for i=1:n
-        %Error Obtained: Error using horzcat.  Dimensions of matrices being
-        %concatenated are not consistent.
-        %[q1_prod_norm, q1_prod_norm_s, out_param1_prod_norm, qm_prod1_norm] = cubSobolBayesian(f1, post, absTol, d);
-        %[q1_prod_mle, q1_prod_mle_s, out_param1_prod_mle, qm_prod1_mle] = cubSobolBayesian_IS(f1_mle, post_mle, absTol, A0, betaMLE, d);
-        %Line with error: [q1_prod, q1_prod_s, qm_prod1] = deal(0.5.*[q1_prod_norm, q1_prod_norm_s, qm_prod1_norm(i, 1)]+0.5.*[q1_prod_mle, q1_prod_mle_s, qm_prod1_mle]);
-        %[q2_prod_norm, q2_prod_norm_s, out_param2_prod_norm, qm_prod2_norm] = cubSobolBayesian(f2, post, absTol, d);
-        %[q2_prod_mle, q2_prod_mle_s, out_param2_prod_mle, qm_prod2_mle] = cubSobolBayesian_IS(f2_mle, post_mle, absTol, A0, betaMLE, d);
-       
-        %Error Obtained: The expression cannot be assigned to multipled
-        %values.
-        %[q1_prod,q1_prod_s,out_param1_prod,qm_prod1] = (0.5.*cubSobolBayesian(f1,post,absTol,d))+(0.5.*cubSobolBayesian_IS(f1_mle,post_mle,absTol,A0,betaMLE,d));
-        %[q2_prod,q2_prod_s,out_param2_prod,qm_prod2] = (0.5.*cubSobolBayesian(f2,post,absTol,d))+(0.5.*cubSobolBayesian_IS(f2_mle,post_mle,absTol,A0,betaMLE,d));
-        
-        %qmn_prod(1:length(qm_prod1), i) = qm_prod1;
-        %qmn_prod(i) = nnz(qmn_prod(:, i));
-        %Nmax_prod = min(Nqmn_prod);
-        %betaSobol_prod(i, 1:2) = [q1_prod, q2_prod];
-        %betaSobol_prod_s(i, 1:2) = [q1_prod_s, q2_prod_s];
+        [q1_prod,q1_prod_s,out_param1_prod,qm_prod1] = cubSobolBayesian_Prod(f1_prod,post_prod,absTol,A_new,c,d);
+        [q2_prod,q2_prod_s,out_param2_prod,~] = cubSobolBayesian_Prod(f2_prod,post_prod,absTol,A_new,c,d);
+        qmn_prod(1:length(qm_prod1),i) = qm_prod1;
+        Nqmn_prod(i) = nnz(qmn_prod(:,i));
+        Nmax_prod = min(Nqmn_prod);
+        betaSobol_prod(i,1:2) = [q1_prod,q2_prod];
+        betaSobol_prod_s(i,1:2) = [q1_prod_s,q2_prod_s];
     end  
 end
 
@@ -92,16 +97,29 @@ center = 0.5*(corner_sw + corner_ne);
 corner = center-absTol;
 
 %% 
-disp(['Calculating the first component of beta_hat via standard normal density uses ',num2str(out_param1.n), ' samples and takes ', num2str(out_param1.time), 'seconds.'])
-disp(['Calculating the first component of beta_hat vis MLE density uses ',num2str(out_param1_mle.n), ' samples and takes ', num2str(out_param1_mle.time), 'seconds.'])
-% disp(['Calculating the first component of beta_hat via the product of the standard normal density and the MLE density uses ',num2str(out_param1_prod.time), ' samples and takes ', num2str(out_param1_prod.time), 'seconds.'])
-
+if densityChoice(1)
+    disp(['Calculating the first component of beta_hat via standard normal density uses ',num2str(out_param1.n), ' samples and takes ', num2str(out_param1.time), 'seconds.'])
+end
+if densityChoice(2)
+    disp(['Calculating the first component of beta_hat via MLE density uses ',num2str(out_param1_mle.n), ' samples and takes ', num2str(out_param1_mle.time), 'seconds.'])
+end
+if densityChoice(3)
+    disp(['Calculating the first component of beta_hat via the product of the standard normal density and the MLE density uses ',num2str(out_param1_prod.time), ' samples and takes ', num2str(out_param1_prod.time), 'seconds.'])
+end
 %%
 figure;
-plot(betaSobol(:,1),betaSobol(:,2),'o',betaSobol_mle(:,1),betaSobol_mle(:,2),...
-    '+','MarkerSize',10);
-% plot(betaSobol(:,1),betaSobol(:,2),'o','MarkerSize',10);
+if densityChoice(1)
+    plot(betaSobol(:,1),betaSobol(:,2),'o','MarkerSize',10);
+end
+if densityChoice(2)
+    hold on
+    plot(betaSobol_mle(:,1),betaSobol_mle(:,2),'*','MarkerSize',10);
+end
+if densityChoice(3)
+    hold on
+    plot(betaSobol_prod(:,1), betaSobol_prod(:,2),'+','MarkerSize',10);
+end
 hold on;
 rectangle('position',[corner 2*absTol 2*absTol],'EdgeColor','r','LineWidth',1.5);
-
+legend('sampling via the density \pi','sampling via the density \rho_{MLE}','sampling via a product of the densities \pi and \rho_{mle}','tolerance range');
 end
