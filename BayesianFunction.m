@@ -38,6 +38,9 @@ betaSobol_prod = zeros(n,d);
 betaSobol_s = zeros(n,d);
 betaSobol_mle_s = zeros(n,d);    
 betaSobol_prod_s = zeros(n,d);
+corner_sw = [inf inf];
+corner_ne = -[inf inf];
+
 
 if densityChoice(1)
     for i = 1:n
@@ -49,6 +52,8 @@ if densityChoice(1)
         betaSobol(i,1:2) = [q1,q2];
         betaSobol_s(i,1:2) = [q1_s,q2_s];
     end
+    corner_sw = min([corner_sw; betaSobol(:,1:2)]);
+    corner_ne = max([corner_ne; betaSobol(:,1:2)]);
 end
 
 if densityChoice(2)
@@ -61,6 +66,8 @@ if densityChoice(2)
         betaSobol_mle(i,1:2) = [q1_mle,q2_mle];
         betaSobol_mle_s(i,1:2) = [q1_mle_s,q2_mle_s];
     end
+    corner_sw = min([corner_sw; betaSobol_mle(:,1:2)]);
+    corner_ne = max([corner_ne; betaSobol_mle(:,1:2)]);
 end
    
 if densityChoice(3)
@@ -88,11 +95,11 @@ if densityChoice(3)
         Nmax_prod = min(Nqmn_prod);
         betaSobol_prod(i,1:2) = [q1_prod,q2_prod];
         betaSobol_prod_s(i,1:2) = [q1_prod_s,q2_prod_s];
-    end  
+    end 
+    corner_sw = min([corner_sw; betaSobol_prod(:,1:2)]);
+    corner_ne = max([corner_ne; betaSobol_prod(:,1:2)]);
 end
 
-corner_sw = min([betaSobol(:,1:2);betaSobol_mle(:,1:2)]);
-corner_ne = max([betaSobol(:,1:2);betaSobol_mle(:,1:2)]);
 center = 0.5*(corner_sw + corner_ne);
 corner = center-absTol;
 
@@ -109,17 +116,20 @@ end
 %%
 figure;
 if densityChoice(1)
-    plot(betaSobol(:,1),betaSobol(:,2),'o','MarkerSize',10);
+    h = plot(betaSobol(:,1),betaSobol(:,2),'o','MarkerSize',10);
 end
 if densityChoice(2)
     hold on
-    plot(betaSobol_mle(:,1),betaSobol_mle(:,2),'*','MarkerSize',10);
+    h = [h; plot(betaSobol_mle(:,1),betaSobol_mle(:,2),'*','MarkerSize',10)];
 end
 if densityChoice(3)
     hold on
-    plot(betaSobol_prod(:,1), betaSobol_prod(:,2),'+','MarkerSize',10);
+    h = [h; plot(betaSobol_prod(:,1), betaSobol_prod(:,2),'+','MarkerSize',10)];
 end
 hold on;
 rectangle('position',[corner 2*absTol 2*absTol],'EdgeColor','r','LineWidth',1.5);
-legend('sampling via the density \pi','sampling via the density \rho_{MLE}','sampling via a product of the densities \pi and \rho_{mle}','tolerance range');
+legendText = ["sampling via the density \pi"; ...
+   "sampling via the density \rho_{MLE}"; ...
+   "sampling via a product of the densities \pi and \rho_{mle}"];
+legend(h,legendText(densityChoice,:),'interpreter','latex');
 end
