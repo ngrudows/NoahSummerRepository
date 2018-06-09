@@ -1,4 +1,4 @@
-function [q,q_sim,out_param,qm] = cubSobolBayesian_IS(f1,f2,absTol,A,mu,d)
+function [q,q_sim,out_param,qm] = cubSobolBayesian_IS(f1,f2,absTol,A,mu,d,x)
 
 t_start = tic;
 %% Initial important cone factors and Check-initialize parameters
@@ -7,8 +7,7 @@ r_lag = 4; %distance between coefficients summed and those computed
 % omg_circ = @(m) 2.^(-m);
 % omg_hat = @(m) out_param.fudge(m)/((1+out_param.fudge(r_lag))*omg_circ(r_lag));
 
-f1 = @(x) f1(bsxfun(@plus,gail.stdnorminv(x)*A',mu));
-f2 = @(x) f2(bsxfun(@plus,gail.stdnorminv(x)*A',mu));
+
 
 out_param.d = d+1;
 out_param.mmin = 10;
@@ -32,8 +31,13 @@ out_param.exit=false(1,exit_len); %we start the algorithm with all warning flags
 out_param.n=2^out_param.mmin; %total number of points to start with
 n0=out_param.n; %initial number of points
 xpts=sobstr(1:n0,1:out_param.d); %grab Sobol' points
-y1 = f1(xpts); %evaluate integrand
-y2 = f2(xpts);
+bx = xpts(:,2:d+1);
+expxb = exp(bsxfun(@plus,bx*x',xpts(:,1)));
+lgp = 1./(1+1./expxb);
+f1 = @(x,lgp) f1(bsxfun(@plus,norminv(x)*A',mu),lgp);
+f2 = @(x,lgp) f2(bsxfun(@plus,norminv(x)*A',mu),lgp);
+y1 = f1(xpts,lgp); %evaluate integrand
+y2 = f2(xpts,lgp);
 yval1 = y1;
 yval2 = y2;
 
@@ -130,10 +134,13 @@ for m=out_param.mmin+1:out_param.mmax
    nnext=2^mnext;
    xnext=sobstr(n0+(1:nnext),1:out_param.d); 
    n0=n0+nnext;
+   bx = xnext(:,2:out_param.d);
+   expxb = exp(bsxfun(@plus,bx*x',xnext(:,1)));
+   lgp = 1./(1+1./expxb);
    
-    ynext1=f1(xnext);
+    ynext1=f1(xnext,lgp);
     yval1=[yval1; ynext1];
-    ynext2=f2(xnext);
+    ynext2=f2(xnext,lgp);
     yval2=[yval2; ynext2];
 
    %% Compute initial FWT on next points

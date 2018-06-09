@@ -15,9 +15,9 @@ for i = 1:M
 end
 y = rand(M,1) < logit(beta,x,d);
 getMLE;
-post = @(b) prod(bsxfun(@power,logitp(b,x,d),y').*bsxfun(@power,(1-logitp(b,x,d)),1-y'),2);
-f1 = @(b) post(b).*b(:,1);
-f2 = @(b) post(b).*b(:,2);
+post = @(b,lgp) prod(bsxfun(@power,lgp,y').*bsxfun(@power,(1-lgp),1-y'),2);
+f1 = @(b,lgp) post(b,lgp).*b(:,1);
+f2 = @(b,lgp) post(b,lgp).*b(:,2);
 LogLb = @(b) LogL(b,x,y,d);
 Hessian = hessian(LogLb,betaMLE);
 A = inv(-Hessian);
@@ -25,11 +25,11 @@ Ainv = -Hessian;
 [U,S,~] = svd(A);
 A0 = U*sqrt(S);
 
-post_mle = @(b) post(b).*(det(-Hessian))^(-0.5)...
+post_mle = @(b,lgp) post(b,lgp).*(det(-Hessian))^(-0.5)...
             .*exp(-0.5*(sum((bsxfun(@minus,b,betaMLE)*Hessian).*bsxfun(@minus,b,betaMLE),2)+...
                   sum(b.*b,2)));
-f1_mle = @(b) post_mle(b).*b(:,1);
-f2_mle = @(b) post_mle(b).*b(:,2);
+f1_mle = @(b,lgp) post_mle(b,lgp).*b(:,1);
+f2_mle = @(b,lgp) post_mle(b,lgp).*b(:,2);
 
 n = 10;
 betaSobol = zeros(n,d);
@@ -41,25 +41,27 @@ betaSobol_prod_s = zeros(n,d);
 corner_sw = [inf inf];
 corner_ne = -[inf inf];
 
-
+tdensityOne=tic;
 if densityChoice(1)
     for i = 1:n
-        [q1,q1_s,out_param1,qm1] = cubSobolBayesian(f1,post,absTol,d);
-        [q2,q2_s,out_param2,qm2] = cubSobolBayesian(f2,post,absTol,d);
+        [q1,q1_s,out_param1,qm1] = cubSobolBayesian(f1,post,absTol,d,x);
+        [q2,q2_s,out_param2,qm2] = cubSobolBayesian(f2,post,absTol,d,x);
         qmn(1:length(qm1),i) = qm1;
         Nqmn(i) = nnz(qmn(:,i));
         Nmax = min(Nqmn);
         betaSobol(i,1:2) = [q1,q2];
-        betaSobol_s(i,1:2) = [q1_s,q2_s];
+        betaSobol_s(i,1:2) = [q1_s,q2_s]; %Try MATLAB Profiler
     end
     corner_sw = min([corner_sw; betaSobol(:,1:2)]);
     corner_ne = max([corner_ne; betaSobol(:,1:2)]);
 end
+toc(tdensityOne);
 
+tdensityTwo=tic;
 if densityChoice(2)
     for i=1:n
-        [q1_mle,q1_mle_s,out_param1_mle,qm_mle1] = cubSobolBayesian_IS(f1_mle,post_mle,absTol,A0,betaMLE,d);
-        [q2_mle,q2_mle_s,out_param2_mle,~] = cubSobolBayesian_IS(f2_mle,post_mle,absTol,A0,betaMLE,d);
+        [q1_mle,q1_mle_s,out_param1_mle,qm_mle1] = cubSobolBayesian_IS(f1_mle,post_mle,absTol,A0,betaMLE,d,x);
+        [q2_mle,q2_mle_s,out_param2_mle,~] = cubSobolBayesian_IS(f2_mle,post_mle,absTol,A0,betaMLE,d,x);
         qmn_mle(1:length(qm_mle1),i) = qm_mle1;
         Nqmn_mle(i) = nnz(qmn_mle(:,i));
         Nmax_mle = min(Nqmn_mle);
@@ -69,7 +71,9 @@ if densityChoice(2)
     corner_sw = min([corner_sw; betaSobol_mle(:,1:2)]);
     corner_ne = max([corner_ne; betaSobol_mle(:,1:2)]);
 end
-   
+toc(tdensityTwo);
+
+tdensityThree=tic;
 if densityChoice(3)
     A=inv(-Hessian);
     Ainv=-Hessian;
@@ -88,8 +92,8 @@ if densityChoice(3)
     f1_prod = @(b) post_prod(b).*b(:,1);
     f2_prod = @(b) post_prod(b).*b(:,2);
     for i=1:n
-        [q1_prod,q1_prod_s,out_param1_prod,qm_prod1] = cubSobolBayesian_Prod(f1_prod,post_prod,absTol,A_new,c,d);
-        [q2_prod,q2_prod_s,out_param2_prod,~] = cubSobolBayesian_Prod(f2_prod,post_prod,absTol,A_new,c,d);
+        [q1_prod,q1_prod_s,out_param1_prod,qm_prod1] = cubSobolBayesian_IS(f1_prod,post_prod,absTol,A_new,c,d,x);
+        [q2_prod,q2_prod_s,out_param2_prod,~] = cubSobolBayesian_IS(f2_prod,post_prod,absTol,A_new,c,d,x);
         qmn_prod(1:length(qm_prod1),i) = qm_prod1;
         Nqmn_prod(i) = nnz(qmn_prod(:,i));
         Nmax_prod = min(Nqmn_prod);
@@ -99,6 +103,7 @@ if densityChoice(3)
     corner_sw = min([corner_sw; betaSobol_prod(:,1:2)]);
     corner_ne = max([corner_ne; betaSobol_prod(:,1:2)]);
 end
+toc(tdensityThree);
 
 center = 0.5*(corner_sw + corner_ne);
 corner = center-absTol;
@@ -128,8 +133,8 @@ if densityChoice(3)
 end
 hold on;
 rectangle('position',[corner 2*absTol 2*absTol],'EdgeColor','r','LineWidth',1.5);
-legendText = ["sampling via the density \pi"; ...
-   "sampling via the density \rho_{MLE}"; ...
-   "sampling via a product of the densities \pi and \rho_{mle}"];
-legend(h,legendText(densityChoice,:),'interpreter','latex');
+%legendText = ["sampling via the density \pi"; ...
+%   "sampling via the density \rho_{MLE}"; ...
+%   "sampling via a product of the densities \pi and \rho_{mle}"];
+%legend(h,legendText(densityChoice,:),'interpreter','latex');
 end
