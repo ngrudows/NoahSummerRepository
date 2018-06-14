@@ -42,7 +42,8 @@ corner_sw = [inf inf];
 corner_ne = -[inf inf];
 
 if densityChoice(1)
-    timeOne=tic;
+    tic;
+    totalSamplesOne=0;
     for i = 1:n
         [q1,q1_s,out_param1,qm1] = cubSobolBayesian(f1,post,absTol,d);
         [q2,q2_s,out_param2,qm2] = cubSobolBayesian(f2,post,absTol,d);
@@ -51,15 +52,16 @@ if densityChoice(1)
         Nmax = min(Nqmn);
         betaSobol(i,1:2) = [q1,q2];
         betaSobol_s(i,1:2) = [q1_s,q2_s];
-        %timeOne=timeit(cubSobolBayesian);
+        totalSamplesOne = totalSamplesOne+out_param1.n;
     end
     corner_sw = min([corner_sw; betaSobol(:,1:2)]);
     corner_ne = max([corner_ne; betaSobol(:,1:2)]);
-toc(timeOne)
+timeOne=toc;
 end
 
 if densityChoice(2)
-    timeTwo=tic;
+    tic;
+    totalSamplesTwo=0;
     for i=1:n
         [q1_mle,q1_mle_s,out_param1_mle,qm_mle1] = cubSobolBayesian_IS(f1_mle,post_mle,absTol,A0,betaMLE,d);
         [q2_mle,q2_mle_s,out_param2_mle,~] = cubSobolBayesian_IS(f2_mle,post_mle,absTol,A0,betaMLE,d);
@@ -68,15 +70,16 @@ if densityChoice(2)
         Nmax_mle = min(Nqmn_mle);
         betaSobol_mle(i,1:2) = [q1_mle,q2_mle];
         betaSobol_mle_s(i,1:2) = [q1_mle_s,q2_mle_s];
-        %timeTwo=timeit(cubSobolBayesian_IS);
+        totalSamplesTwo = totalSamplesTwo+out_param1_mle.n;
     end
     corner_sw = min([corner_sw; betaSobol_mle(:,1:2)]);
     corner_ne = max([corner_ne; betaSobol_mle(:,1:2)]);
-toc(timeTwo)
+timeTwo=toc;
 end
  
 if densityChoice(3)
-    timeThree=tic; 
+    tic; 
+    totalSamplesThree=0;
     A=inv(-Hessian);
     Ainv=-Hessian;
     B=eye(dim);
@@ -108,11 +111,11 @@ if densityChoice(3)
         Nmax_prod = min(Nqmn_prod);
         betaSobol_prod(i,1:2) = [q1_prod,q2_prod];
         betaSobol_prod_s(i,1:2) = [q1_prod_s,q2_prod_s];
-        %timeThree=timeit(cubSobolBayesian_IS);
+        totalSamplesThree = totalSamplesThree+out_param1_prod.n;
     end 
     corner_sw = min([corner_sw; betaSobol_prod(:,1:2)]);
     corner_ne = max([corner_ne; betaSobol_prod(:,1:2)]);
-toc(timeThree)
+timeThree=toc;
 end
 
 center = 0.5*(corner_sw + corner_ne);
@@ -131,23 +134,60 @@ end
 %%
 figure;
 if densityChoice(1)
-    plot(betaSobol(:,1),betaSobol(:,2),'o','MarkerSize',10);
+    plot(betaSobol(:,1),betaSobol(:,2),'o','MarkerSize',10,'DisplayName','Sampling via the density \pi');
 end
 if densityChoice(2)
     hold on
-    plot(betaSobol_mle(:,1),betaSobol_mle(:,2),'*','MarkerSize',10);
+    plot(betaSobol_mle(:,1),betaSobol_mle(:,2),'*','MarkerSize',10,'DisplayName','Sampling via the density \rho_{mle}');
 end
 if densityChoice(3)
     hold on
-    plot(betaSobol_prod(:,1), betaSobol_prod(:,2),'+','MarkerSize',10);
+    plot(betaSobol_prod(:,1), betaSobol_prod(:,2),'+','MarkerSize',10,'DisplayName','Sampling via a product of the densities \pi and \rho{mle}');
 end
 hold on;
 rectangle('position',[corner 2*absTol 2*absTol],'EdgeColor','r','LineWidth',1.5);
-%legendText = ["sampling via the density \pi"; ...
-%   "sampling via the density \rho_{MLE}"; ...
-%   "sampling via a product of the densities \pi and \rho_{mle}"];
-%legend(h,legendText(densityChoice,:),'interpreter','latex');
-%timeOne
-%timeTwo
-%timeThree
+legend('location','southoutside');
+%plot(TitlePosition = [2, 2]);
+title('Bayesian Inference Estimators Using Different Sampling Distributions');
+
+timesOfDensities = strings([3,1]);
+samplesOfDensities = strings([3,1]);
+
+if densityChoice(1)
+    firstTime = num2str(timeOne);
+    firstTimeFull = strcat(firstTime,' seconds');
+    timesOfDensities(1) = firstTimeFull;
+    firstSample = num2str(totalSamplesOne);
+    samplesOfDensities(1) = firstSample;
+else
+    timesOfDensities(1) = 'N/A';
+    samplesOfDensities(1) = 'N/A';
+end
+if densityChoice(2)
+    secondTime = num2str(timeTwo);
+    secondTimeFull = strcat(secondTime,' seconds');
+    timesOfDensities(2) = secondTimeFull;
+    secondSample = num2str(totalSamplesTwo);
+    samplesOfDensities(2) = secondSample;
+else
+    timesOfDensities(2) = 'N/A';
+    samplesOfDensities(2) = 'N/A';
+end
+if densityChoice(3)
+    thirdTime = num2str(timeThree);
+    thirdTimeFull = strcat(thirdTime,' seconds');
+    timesOfDensities(3) = thirdTimeFull;    
+    thirdSample = num2str(totalSamplesThree);
+    samplesOfDensities(3) = thirdSample;
+else
+    timesOfDensities(3) = 'N/A';
+    samplesOfDensities(3) = 'N/A';
+end
+tableOfTimes = table(timesOfDensities, samplesOfDensities, 'VariableNames', {'Runtime', 'SamplesTaken'},'RowNames', {'Sampling from Density One','Sampling from Density Two','Sampling from Density Three'})
+%tableOfTimes.Style={width(2in)}; %This command only works with a package
+%that you import.  I can't find any other way to alter the width of the
+%table.  For some reason, in the Live Script, the table width cuts of
+%some column values, and after a lot of Googling, I still can't find 
+%anything that works
+
 end
