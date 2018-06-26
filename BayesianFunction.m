@@ -1,4 +1,4 @@
-function [ ] = BayesianFunction( M, x, dim, absTol, densityChoice)
+function [ ] = BayesianFunction( M, x, dim, absTol, densityChoice,n)
 d=dim-1;
 x=x';
 logit = @(b,x,d) exp(b(1) + sum(bsxfun(@times,b(2:d+1),x(:,1:d)),2))./...
@@ -31,7 +31,7 @@ post_mle = @(b) post(b).*(det(-Hessian))^(-0.5)...
 f1_mle = @(b) post_mle(b).*b(:,1);
 f2_mle = @(b) post_mle(b).*b(:,2);
 
-n = 5;
+%n = 5;
 betaSobol = zeros(n,d);
 betaSobol_mle = zeros(n,d);    
 betaSobol_prod = zeros(n,d);
