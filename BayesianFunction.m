@@ -107,7 +107,7 @@ if densityChoice(3)
         [q1_prod,q1_prod_s,out_param1_prod,qm_prod1] = cubSobolBayesian_IS(f1_prod,post_prod,absTol,A_new,c,d);
         [q2_prod,q2_prod_s,out_param2_prod,~] = cubSobolBayesian_IS(f2_prod,post_prod,absTol,A_new,c,d);
         qmn_prod(1:length(qm_prod1),i) = qm_prod1;
-        Nqmn_prod(i) = nnz(qmn_prod(:,i));
+        Nqmn_prod = nnz(qmn_prod(:,i));
         Nmax_prod = min(Nqmn_prod);
         betaSobol_prod(i,1:2) = [q1_prod,q2_prod];
         betaSobol_prod_s(i,1:2) = [q1_prod_s,q2_prod_s];
@@ -118,8 +118,55 @@ if densityChoice(3)
 timeThree=toc;
 end
 
+totalEstimators=0;
+totalofEstimators=[0,0];
+if densityChoice(1)
+    totalEstimators=totalEstimators+n;
+    totalofEstimators=[totalofEstimators(1)+sum(betaSobol(:,1)),totalofEstimators(2)+sum(betaSobol(:,2))];
+end
+
+if densityChoice(2)
+    totalEstimators=totalEstimators+n;
+    totalofEstimators=[totalofEstimators(1)+sum(betaSobol_mle(:,1)),totalofEstimators(2)+sum(betaSobol_mle(:,2))];
+end
+
+if densityChoice(3)
+    totalEstimators=totalEstimators+n;
+    totalofEstimators=[totalofEstimators(1)+sum(betaSobol_prod(:,1)),totalofEstimators(2)+sum(betaSobol_prod(:,2))];
+end
+
+centerTwo=totalofEstimators/totalEstimators;
+cornerTwo=centerTwo-absTol;
+
 center = 0.5*(corner_sw + corner_ne);
 corner = center-absTol;
+
+if densityChoice(1) %Remove points that fall outside of tolerance
+    for i=size(betaSobol(:,1)):-1:1
+        if (betaSobol(i,1)<cornerTwo(1)||betaSobol(i,1)>(cornerTwo(1)+2*absTol)||betaSobol(i,2)<cornerTwo(2)||betaSobol(i,2)>(cornerTwo(2)+2*absTol))
+            betaSobol(i,:)=[];         
+        end
+    end
+end
+
+if densityChoice(2) %Remove points that fall outside of tolerance
+    for i=size(betaSobol_mle(:,1)):-1:1
+        if (betaSobol_mle(i,1)<cornerTwo(1)||betaSobol_mle(i,1)>(cornerTwo(1)+2*absTol)||betaSobol_mle(i,2)<cornerTwo(2)||betaSobol_mle(i,2)>(cornerTwo(2)+2*absTol))
+            betaSobol_mle(i,:)=[];        
+        end
+    end
+end
+
+if densityChoice(3) %Remove points that fall outside of tolerance
+    for i=size(betaSobol_prod(:,1)):-1:1
+        if (betaSobol_prod(i,1)<cornerTwo(1)||betaSobol_prod(i,1)>(cornerTwo(1)+2*absTol)||betaSobol_prod(i,2)<cornerTwo(2)||betaSobol_prod(i,2)>(cornerTwo(2)+2*absTol))
+            betaSobol_prod(i,:)=[];       
+        end
+    end
+end
+
+%Corner is lower left, lower right
+%Outside is less than corner or greater than coner +2*absTol
 
 %% 
 if densityChoice(1)
@@ -142,10 +189,11 @@ if densityChoice(2)
 end
 if densityChoice(3)
     hold on
-    plot(betaSobol_prod(:,1), betaSobol_prod(:,2),'+','MarkerSize',10,'DisplayName','Sampling via a product of the densities \pi and \rho{mle}');
+    plot(betaSobol_prod(:,1), betaSobol_prod(:,2),'+','MarkerSize',10,'DisplayName','Sampling via a product of the densities \pi and \rho_{mle}');
 end
 hold on;
 rectangle('position',[corner 2*absTol 2*absTol],'EdgeColor','r','LineWidth',1.5);
+rectangle('position',[cornerTwo 2*absTol 2*absTol],'EdgeColor','b','LineWidth',1.5);
 legend('location','southoutside');
 %plot(TitlePosition = [2, 2]);
 title('Bayesian Inference Estimators Using Different Sampling Distributions');
