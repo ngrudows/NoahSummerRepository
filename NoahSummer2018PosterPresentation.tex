@@ -1,0 +1,242 @@
+\documentclass[final,mathserif]{beamer}
+%\documentclass[final,mathserif,hyperref={pdfpagelabels=false}]{beamer}
+\mode<presentation> {
+    \usetheme{FredIITPoster}
+}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{times,mcode,bbm,alltt}
+\usepackage{amsmath, amsthm, amssymb, latexsym,natbib,datetime,rotating,bbding,pifont,graphicx}
+\newcounter{qcounter}
+\usepackage[latin1]{inputenc}
+\usepackage{epsfig}
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage[orientation=landscape,size=a0,scale=1.9,debug]{beamerposter}
+\usepackage{xspace}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+%\newcommand{\blue}{\textcolor{blue!80!black}}
+%\newcommand{\green}{\textcolor{green!50!black}}
+\graphicspath{{figures/}}
+\title{Automatic Monte Carlo Methods for Bayesian Inference}
+\author{Noah Grudowski}
+\institute{Applied Mathematics, Illinois Institute of
+Technology}
+\def\email{ngrudows@hawk.iit.edu}
+\def\meeting{2018 AmBCP Poster Day}
+\date{Thursday, August 16, 2018}
+%\def\thispdfpagelabel{}
+\def\newblock{\hskip .11em plus .33em minus .07em}
+
+%----------------------------------------------------------------------------------------------------------------------
+
+\definecolor{myblue}{rgb}{0.2,0.2,0.8}
+\definecolor{mygreen}{rgb}{0.2,0.8,0.2}
+\definecolor{myred}{rgb}{0.8,0.2,0.2}
+\definecolor{mygold}{rgb}{0.6,0.4,0.2}
+\definecolor{mypurple}{rgb}{0.6,0.2,0.4}
+\definecolor{myteal}{rgb}{0.2,0.6,0.4}
+\newcommand{\blue}[1]{{\color{myblue}#1}}
+\newcommand{\black}[1]{{\color{black}#1}}
+\newcommand{\green}[1]{{\color{mygreen}#1}}
+\newcommand{\red}[1]{{\color{myred}#1}}
+\newcommand{\gold}[1]{{\color{mygold}#1}}
+\newcommand{\purple}[1]{{\color{mypurple}#1}}
+\newcommand{\teal}[1]{{\color{myteal}#1}}
+\newcommand{\cyan}[1]{{\color{cyan}#1}}
+\newcommand{\magenta}[1]{{\color{magenta}#1}}
+\newcommand{\white}[1]{{\color{white}#1}}
+
+\newtheorem{prob}{\gold{Problems and Challenges}}
+\let\Problemfont\itshape
+\def\Problemheadfont{\bfseries}
+\newtheorem{remark}{Remark}
+\let\Remarkfont\itshape
+\def\Remarkheadfont{\bfseries}
+\newtheorem{program}{Program}
+\let\Programfont\upshape
+\def\Programheadfont{\bfseries}
+\newtheorem{guess}{Guess}
+\let\Guessfont\itshape
+\def\Guessheadfont{\bfseries}
+\def\toprule{\\[-6pt]\hline\\[-5.5pt]}
+\def\colrule{\\[-7.5pt]\hline\\[-5.5pt]}
+\def\botrule{\\[-7pt]\hline\\[-8.5pt]}
+
+\renewcommand{\blue}{\textcolor{blue!80!black}}
+\renewcommand{\green}{\textcolor{green!50!black}}
+
+\begin{document}
+\vspace*{-1.5ex}
+\begin{frame}[fragile]
+
+\begin{columns}[t]
+
+\begin{column}{.02\linewidth}\end{column} %left margin 
+
+\begin{column}{.31\linewidth} %first column
+
+{\Large \alert{\textbf{Introduction}}}
+
+\vspace{.1in}
+
+\begin{block}{\blue{Bayesian Statistics}}
+\begin{itemize}
+\item Unknown parameters being estimated are not fixed.  They are random variables
+\item A prior distribution, based off of a person's beliefs about the parameters, is constructed before sampling
+\item After sampling, a likelihood function is formed.  This function represents how likely the parameters are to take on certain values given the sample data observed
+\item A posterior distribution is then created as a weighted product of the prior distribution and likelihood function
+\item Bayesian statistics are increasing in popularity due to its potential of decreased variation in results
+\end{itemize}
+\end{block}
+
+\vspace{.1in}
+
+\begin{block}{\blue{Quasi-Monte Carlo Cubature Rule}}
+\begin{itemize}
+\item A commonly used estimator for Bayesian inference is $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db} =: \frac{\mu_j}{\mu}, ~for\ j=0, 1, 2,\ldots, d$
+where $\hat{\beta}_j$ is a component of $\hat{\beta}$ (the unknown parameters), $L(b)$ is the likelihood function given the observed data, and $\pi(b)$ is some prior distribution.
+\item The problem with this estimator is that this ratio of integrals cannot be calculated analytically
+\item To approximate this ratio of integrals, we use the quasi-Monte Carlo cubature rule.  This is given by the formula $\int_{[0, 1]^{d+1}}f(x)dx\approx \frac{1}{n} \sum_{i=0}^{n-1}f({x_i})$
+\end{itemize}
+\end{block}
+
+\end{column}
+
+\begin{column}{.015\linewidth} \end{column} %intercolumn space
+
+\begin{column}{.31\linewidth}
+
+\begin{block}{\Large \alert{\textbf{Problem Formulation}}}
+\begin{itemize}
+
+\item We explored the problem of using Bayesian inference for logistic regression, meaning that each $t_i$ is an independent, identically distributed Bernoulli variable.
+
+\item $t_i \sim \text{Ber} \left(\frac{\exp{\left(\beta_0+\sum_{j=1}^d\beta_j s_{ij}\right)}} {1+\exp \left({{\beta_0+\sum_{j=1}^d\beta_js_{ij}}}\right)}\right), \text{for } i=1, 2, \dots , M$
+
+\item  For simplicity, we will choose the standard normal distribution with respect to our parameters $\hat{\beta}_j$ to be our prior distribution, or 
+$\pi(\beta)=\frac{\exp{\left({-\frac{1}{2}\beta^T\beta}\right )}}{\sqrt{(2\pi)^{d+1}}}$
+
+\item Given the above $t_i$, we arrive at the following likelihood function:
+$L(\beta)=\prod_{i=1}^M \left(\frac{\exp{\left({\beta_0+\sum_{j=1}^d\beta_js_{ij}}\right)}}{1+\exp{\left ({\beta_0+\sum_{j=1}^d\beta_js_{ij}}\right )}}\right)^{t_i} \left(1-\frac{\exp{\left ({\beta_0+\sum_{j=1}^d\beta_js_{ij}}\right)}}{1+\exp{\left ({\beta_0+\sum_{j=1}^d\beta_js_{ij}}\right )}}\right)^{1-t_i}$
+
+\item Using this information, $\mu$ and $\hat{\mu}$ are defined as the following integrals:  $\mu=\int_{\Re^{d+1}}L(b)\pi(b)d(b), ~~\mu_j=\int_{\Re^{d+1}}b_jL(b)\pi(b)db$
+
+\end{itemize}
+\end{block}
+
+\vspace{.1in}
+
+\begin{block}{\blue{Choice of Density}}
+\begin{itemize}
+\item Since we are not able to calculate the ratio $\frac{\mu_j}{\mu}$ analytically, we rewrite the formulas as such: $\mu=\int_{\Re^{d+1}}L(b)\pi(b)db=\int_{\Re^{d+1}}\frac{L(b)\pi(b)}{\rho(b)}\rho(b)db$, where $\rho(b)$ is some density.  This allows us to estimate the values of the ratios of integrals by sampling from this $\rho(b)$.
+\item  We have the following choices for $\rho(b)$:
+$\begin{array}{rrcl}
+1) & \rho & = & \pi \\
+2) & \rho & = & \rho_{\text{MLE}} = \text{Gaussian approximation to the}\\ 
+&&&\hspace{5.5cm} \text{likelihood}\\
+3) & \rho & \propto & \pi \cdot \rho_{\text{MLE}}
+\end{array}$
+
+\end{itemize}
+\end{block}
+
+\end{column}
+
+\begin{column}{.015\linewidth} \end{column} %intercolumn space
+
+\begin{column}{.31\linewidth}
+
+\begin{block}{\blue{New MATLAB classes}}
+\begin{itemize}
+
+\item We have developed a \alert{function} \mcode{BayesianFunction} in order to execute Bayesian inference for logistic regression using GAIL (Choi Et al, 2015) (quasi-)Monte Carlo methods. 
+
+\item \mcode{BayesianFunction(...)} \alert{automatically} estimates the unknown parameters $\hat{\beta}$ within some desired tolerance level.
+
+\item The function allows the user to input the number of x-Data values, the type of x-Data to be used, the number of iterations to be run, the absolute tolerance desired, and which of the three density choices they would like to use (can choose more than one).
+
+\item We specifically tested three different types of x-Data: uniformly distributed, uniform random, and normal random.
+
+\end{itemize}
+\end{block}
+
+\bigskip
+
+{{\Large \alert{\textbf{Evenly Spaced x-Data}}}}
+
+\vspace{.1in}
+
+\begin{block}
+
+\end{block}
+
+\vspace{.1in}
+
+\bigskip
+
+{{\Large \alert{\textbf{Uniform Random x-Data}}}}
+
+\begin{block}
+
+\end{block}
+
+\vspace{.1in}
+
+\bigskip
+
+{{\Large \alert{\textbf{Normal Random x-Data}}}}
+
+\vspace{.1in}
+
+\begin{block}
+
+\end{block}
+
+\vspace{.1in}
+
+\bigskip
+
+{\Large \alert{\textbf{Discussion}}}
+
+\vspace{.1in}
+
+\begin{block}
+
+\begin{itemize}
+\item Add some 
+
+\item Concluding 
+
+\item Remarks here
+\end{itemize}
+\end{block}
+
+\bigskip
+
+{\Large \alert{\textbf{References}}}
+
+\vspace{.1in}
+
+\begin{block}
+
+\footnotesize
+
+\begin{itemize}
+\item 
+
+\item 
+
+\item
+
+\item
+\end{itemize}
+\end{block}
+
+\end{column}
+\end{columns}
+
+\end{frame}
+\end{document}
