@@ -12,7 +12,7 @@
 \usepackage{epsfig}
 \usepackage{graphics}
 \usepackage{graphicx}
-\usepackage[orientation=landscape,size=a0,scale=1.9,debug]{beamerposter}
+\usepackage[orientation=portrait,size=a0,scale=1.9,debug]{beamerposter}
 \usepackage{xspace}
 \usepackage{color}
 \usepackage{amssymb}
@@ -78,23 +78,25 @@ Technology}
 
 \begin{column}{.31\linewidth} %first column
 
-{\Large \alert{\textbf{Introduction}}}
+%{\Large \textbf{\blue {Bayesian Statistics}}}
 
-\vspace{.1in}
+%\vspace{.1in}
 
-\begin{block}{\blue{Bayesian Statistics}}
+\begin{block}{\Large \textbf{\blue {Bayesian Statistics}}}
 \begin{itemize}
-\item Unknown parameters being estimated are not fixed.  They are random variables
-\item A prior distribution, based off of a person's beliefs about the parameters, is constructed before sampling
-\item After sampling, a likelihood function is formed.  This function represents how likely the parameters are to take on certain values given the sample data observed
-\item A posterior distribution is then created as a weighted product of the prior distribution and likelihood function
-\item Bayesian statistics are increasing in popularity due to its potential of decreased variation in results
+\item Model parameters are random
+\item \alert{Prior} distribution reflects beliefs about the parameters
+\item Sampling yields a likelihood function
+\item \alert{Posterior} density is the product of the prior density and the likelihood
+\item Estimates involve integrals, e.g. $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db} =: \frac{\mu_j}{\mu},\  j=0, \ldots, d$
 \end{itemize}
 \end{block}
 
-\vspace{.1in}
+\vspace{.3in}
 
-\begin{block}{\blue{Quasi-Monte Carlo Cubature Rule}}
+{\Large \textbf{\blue {Automatic Quasi-Monte Carlo Cubature}}}
+
+\begin{block}{}
 \begin{itemize}
 \item A commonly used estimator for Bayesian inference is $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db} =: \frac{\mu_j}{\mu}, ~for\ j=0, 1, 2,\ldots, d$
 where $\hat{\beta}_j$ is a component of $\hat{\beta}$ (the unknown parameters), $L(b)$ is the likelihood function given the observed data, and $\pi(b)$ is some prior distribution.
