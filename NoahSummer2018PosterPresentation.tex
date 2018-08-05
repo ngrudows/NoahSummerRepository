@@ -12,7 +12,7 @@
 \usepackage{epsfig}
 \usepackage{graphics}
 \usepackage{graphicx}
-\usepackage[orientation=portrait,size=a0,scale=1.9,debug]{beamerposter}
+\usepackage[orientation=landscape,size=a9,scale=1.5,debug]{beamerposter}
 \usepackage{xspace}
 \usepackage{color}
 \usepackage{amssymb}
@@ -78,134 +78,210 @@ Technology}
 
 \begin{column}{.31\linewidth} %first column
 
-%{\Large \textbf{\blue {Bayesian Statistics}}}
-
-%\vspace{.1in}
-
 \begin{block}{\Large \textbf{\blue {Bayesian Statistics}}}
+\vspace{.1in}
 \begin{itemize}
 \item Model parameters are random
-\item \alert{Prior} distribution reflects beliefs about the parameters
-\item Sampling yields a likelihood function
-\item \alert{Posterior} density is the product of the prior density and the likelihood
-\item Estimates involve integrals, e.g. $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db} =: \frac{\mu_j}{\mu},\  j=0, \ldots, d$
-\end{itemize}
-\end{block}
+\item \alert{Prior} distribution, $\pi(b)$, reflects beliefs about the parameters
+\item Sampling yields a likelihood function, $L(b)$
+\item \alert{Posterior} density: product of the prior and the likelihood
+\item Estimates involve integrals, e.g. 
 
-\vspace{.3in}
+\vspace{.1in}
 
-{\Large \textbf{\blue {Automatic Quasi-Monte Carlo Cubature}}}
+$\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db} =: \frac{\mu_j}{\mu},\  j=0, \ldots, d$
 
-\begin{block}{}
-\begin{itemize}
-\item A commonly used estimator for Bayesian inference is $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db} =: \frac{\mu_j}{\mu}, ~for\ j=0, 1, 2,\ldots, d$
-where $\hat{\beta}_j$ is a component of $\hat{\beta}$ (the unknown parameters), $L(b)$ is the likelihood function given the observed data, and $\pi(b)$ is some prior distribution.
-\item The problem with this estimator is that this ratio of integrals cannot be calculated analytically
-\item To approximate this ratio of integrals, we use the quasi-Monte Carlo cubature rule.  This is given by the formula $\int_{[0, 1]^{d+1}}f(x)dx\approx \frac{1}{n} \sum_{i=0}^{n-1}f({x_i})$
-\end{itemize}
-\end{block}
-
-\end{column}
-
-\begin{column}{.015\linewidth} \end{column} %intercolumn space
-
-\begin{column}{.31\linewidth}
-
-\begin{block}{\Large \alert{\textbf{Problem Formulation}}}
-\begin{itemize}
-
-\item We explored the problem of using Bayesian inference for logistic regression, meaning that each $t_i$ is an independent, identically distributed Bernoulli variable.
-
-\item $t_i \sim \text{Ber} \left(\frac{\exp{\left(\beta_0+\sum_{j=1}^d\beta_j s_{ij}\right)}} {1+\exp \left({{\beta_0+\sum_{j=1}^d\beta_js_{ij}}}\right)}\right), \text{for } i=1, 2, \dots , M$
-
-\item  For simplicity, we will choose the standard normal distribution with respect to our parameters $\hat{\beta}_j$ to be our prior distribution, or 
-$\pi(\beta)=\frac{\exp{\left({-\frac{1}{2}\beta^T\beta}\right )}}{\sqrt{(2\pi)^{d+1}}}$
-
-\item Given the above $t_i$, we arrive at the following likelihood function:
-$L(\beta)=\prod_{i=1}^M \left(\frac{\exp{\left({\beta_0+\sum_{j=1}^d\beta_js_{ij}}\right)}}{1+\exp{\left ({\beta_0+\sum_{j=1}^d\beta_js_{ij}}\right )}}\right)^{t_i} \left(1-\frac{\exp{\left ({\beta_0+\sum_{j=1}^d\beta_js_{ij}}\right)}}{1+\exp{\left ({\beta_0+\sum_{j=1}^d\beta_js_{ij}}\right )}}\right)^{1-t_i}$
-
-\item Using this information, $\mu$ and $\hat{\mu}$ are defined as the following integrals:  $\mu=\int_{\Re^{d+1}}L(b)\pi(b)d(b), ~~\mu_j=\int_{\Re^{d+1}}b_jL(b)\pi(b)db$
+\vspace{.1in}
 
 \end{itemize}
 \end{block}
 
 \vspace{.1in}
 
-\begin{block}{\blue{Choice of Density}}
+\begin{block} {\Large \textbf{\blue {Quasi-Monte Carlo Cubature}}}
+\vspace{.1in}
 \begin{itemize}
-\item Since we are not able to calculate the ratio $\frac{\mu_j}{\mu}$ analytically, we rewrite the formulas as such: $\mu=\int_{\Re^{d+1}}L(b)\pi(b)db=\int_{\Re^{d+1}}\frac{L(b)\pi(b)}{\rho(b)}\rho(b)db$, where $\rho(b)$ is some density.  This allows us to estimate the values of the ratios of integrals by sampling from this $\rho(b)$.
+\item Helps approximate integrals:
+
+\vspace{0.1in}
+
+$\int_{[0, 1]^{d+1}}f(x)dx\approx \frac{1}{n} \sum_{i=0}^{n-1}f({x_i})$ 
+
+\vspace{.1in}
+
+where $\left\{x_i\right\}_{i=1}^n$ is a low-discrepancy sequence
+
+\item A low-discrepancy sequence is a \alert{correlated} sequence whose empirical distribution matches the target distribution better than an IID sequence
+
+\item Plot of 256 Sobol sequence points that underwent the standard normal transformation:
+
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{SobolPoints}
+\end{center}
+\end{block}
+
+\vspace{.1in}
+
+\begin{block}{\Large \textbf{\blue {Model Problem}}}
+\vspace{.1in}
+\begin{itemize}
+\item Bayesian inference is applied to logistic regression.
+
+\item $t_i \sim \text{Ber} \left(\frac{\exp{\left(\beta_0+\sum_{j=1}^d\beta_j s_{ij}\right)}} {1+\exp \left({{\beta_0+\sum_{j=1}^d\beta_js_{ij}}}\right)}\right), \text{for } i=1, 2, \dots , M$
+
+\vspace{.05in}
+
+\item The prior: standard normal with respect to $\hat{\beta}_j$
+
+\vspace{.05in}
+
+$\pi(\beta)=\frac{\exp{\left({-\frac{1}{2}\beta^T\beta}\right )}}{\sqrt{(2\pi)^{d+1}}}$
+
+\vspace{.05in}
+
+\item Widely used Bayesian inference estimator:
+
+\vspace{.05in}
+
+ $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db} =: \frac{\mu_j}{\mu}, ~for\ j=0, 1, 2,\ldots, d$
+
+\vspace{0.05in} 
+
+where $\hat{\beta}$ are the unknown parameters
+\end{itemize}
+\end{block}
+
+\end{column}
+
+
+\begin{column}{.015\linewidth} \end{column} %intercolumn space
+
+\begin{column}{.31\linewidth}
+
+\begin{block}{\Large \textbf{\blue {Choice of Density}}}
+\vspace{.1in}
+\begin{itemize}
+\item The ratio $\frac{\mu_j}{\mu}$ cannot be calculated analytically
+
+\item Thus, we rewrite $\mu$ and $\mu_j$  as such: 
+
+\vspace{.1in}
+
+$\mu=\int_{\Re^{d+1}}L(b)\pi(b)db=\int_{\Re^{d+1}}\frac{L(b)\pi(b)}{\rho(b)}\rho(b)db$,
+
+\vspace{.1in}
+
+where $\rho(b)$ is some density.  Thus, $\frac{\mu_j}{\mu}$ can be estimated by sampling from $\rho(b)$ and applying quasi-Monte Carlo cubature.
 \item  We have the following choices for $\rho(b)$:
 $\begin{array}{rrcl}
 1) & \rho & = & \pi \\
 2) & \rho & = & \rho_{\text{MLE}} = \text{Gaussian approximation to the}\\ 
-&&&\hspace{5.5cm} \text{likelihood}\\
+&&&\hspace{4.5cm} \text{likelihood}\\
 3) & \rho & \propto & \pi \cdot \rho_{\text{MLE}}
 \end{array}$
 
 \end{itemize}
 \end{block}
 
+\vspace{0.1in}
+
+\begin{block}{\Large \textbf{\blue {New MATLAB Function}}}
+\vspace{.1in}
+\begin{itemize}
+
+\item Developed  \alert{function} \mcode{BayesianFunction} that \alert{automatically} estimates the unknown parameters $\hat{\beta}$ using GAIL (Choi Et al, 2015)  
+
+\item User control over various inputs
+
+\end{itemize}
+\end{block}
+
+\vspace{0.1in}
+
+\begin{block}{\Large \textbf{\blue {Use Case: Uniform Random s-Data}}}
+
+\vspace{0.1in}    
+
+\lstset{basicstyle=\small} 
+\begin{lstlisting} 
+% s-Data:100 uniform random values in [-2,6] 
+M = 100; %number of s-Data values
+s = (6+2)*rand(1,M)-2; %s-Data uniform
+dim=2; absTol=0.0005; n=5;
+densityChoice = [true true true]; 
+%Use all 3 densities
+BayesianFunction(M, s, dim, absTol, 
+                 densityChoice,n)
+\end{lstlisting}    
+
+\begin{center}
+\scalebox{0.7}{
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ Density & Runtime (seconds) & Samples Taken \\
+ \hline 
+ $\rho = \pi$ & 86.088 & 2621440\\
+ $\rho = \rho_{\text{MLE}}$ & 2.4954 & 81920\\
+ $\rho \propto \pi \cdot \rho_{\text{MLE}}$ & 1.3744 & 40960\\
+ \hline
+\end{tabular}
+}
+\end{center}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{UniformRandom}
+\end{center} 
+\end{block}
 \end{column}
 
 \begin{column}{.015\linewidth} \end{column} %intercolumn space
 
 \begin{column}{.31\linewidth}
+\begin{block}{\Large \textbf{\blue {Use Case: Normal Random s-Data}}}
 
-\begin{block}{\blue{New MATLAB classes}}
-\begin{itemize}
+\vspace{0.1in}    
 
-\item We have developed a \alert{function} \mcode{BayesianFunction} in order to execute Bayesian inference for logistic regression using GAIL (Choi Et al, 2015) (quasi-)Monte Carlo methods. 
+\lstset{basicstyle=\small} 
+\begin{lstlisting} 
+% s-Data: 100 normal random values
+% with mean 2 and variance 4      
+M = 100; %number of s-Data values
+u = 2; %mean
+sd = 2; %standard deviation
+s = sd.*randn(1,M)+u; %s-Data normal
+dim=2; absTol=0.0005; n=5;
+densityChoice = [true true true];
+%Use all 3 densities
+BayesianFunction(M, s, dim, absTol, 
+                 densityChoice,n)
+\end{lstlisting}     
 
-\item \mcode{BayesianFunction(...)} \alert{automatically} estimates the unknown parameters $\hat{\beta}$ within some desired tolerance level.
+\begin{center}
+\scalebox{0.7}{
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ Density & Runtime (seconds) & Samples Taken \\
+ \hline 
+ $\rho = \pi$ & 13.7314 & 327680\\
+ $\rho = \rho_{\text{MLE}}$ & 0.89835 & 20480\\
+ $\rho \propto \pi \cdot \rho_{\text{MLE}}$ & 1.4781 & 32768\\
+ \hline
+\end{tabular}
+}
+\end{center}
 
-\item The function allows the user to input the number of x-Data values, the type of x-Data to be used, the number of iterations to be run, the absolute tolerance desired, and which of the three density choices they would like to use (can choose more than one).
+\begin{center}
+\includegraphics[width=0.7\textwidth]{NormalRandom}
+\end{center} 
 
-\item We specifically tested three different types of x-Data: uniformly distributed, uniform random, and normal random.
-
-\end{itemize}
 \end{block}
 
 \bigskip
 
-{{\Large \alert{\textbf{Evenly Spaced x-Data}}}}
+\begin{block}{\Large \textbf{\blue {Discussion}}}
 
 \vspace{.1in}
-
-\begin{block}
-
-\end{block}
-
-\vspace{.1in}
-
-\bigskip
-
-{{\Large \alert{\textbf{Uniform Random x-Data}}}}
-
-\begin{block}
-
-\end{block}
-
-\vspace{.1in}
-
-\bigskip
-
-{{\Large \alert{\textbf{Normal Random x-Data}}}}
-
-\vspace{.1in}
-
-\begin{block}
-
-\end{block}
-
-\vspace{.1in}
-
-\bigskip
-
-{\Large \alert{\textbf{Discussion}}}
-
-\vspace{.1in}
-
-\begin{block}
 
 \begin{itemize}
 \item Add some 
@@ -214,27 +290,31 @@ $\begin{array}{rrcl}
 
 \item Remarks here
 \end{itemize}
+
 \end{block}
 
 \bigskip
 
-{\Large \alert{\textbf{References}}}
+\begin{block}{\Large \textbf{\blue {References}}}
 
 \vspace{.1in}
+\begin{itemize}
+\item Choi, S.C.T., Ding, Y., Hickernell, F.J., Jiang, L., Jimenez Rugama,
+Ll.A., Tong, X., Zhang,Y., Zhou, X. \emph{{GAIL}:
+  {G}uaranteed {A}utomatic {I}ntegration {L}ibrary (version 2.1)}, MATLAB
+  software, 2015.
+
+\item Hickernell, F.J., Jimenez Rugama, Ll.A., Li, D.
+Adaptive Quasi-Monte Carlo Methods for Cubature.
+
+\item Brooks-Bartlett, Jonny. Probability Concepts Explained: Bayesian Inference for Parameter Estimation. Towards Data Science. Retrieved August 5, 2018.
+\end{itemize}
+\end{block}
+
+\vspace{0.1in}
 
 \begin{block}
-
-\footnotesize
-
-\begin{itemize}
-\item 
-
-\item 
-
-\item
-
-\item
-\end{itemize}
+{\footnotesize{\black{A special appreciation and thank you to the IIT College of Science for providing the funding behind this research project.}}}
 \end{block}
 
 \end{column}
