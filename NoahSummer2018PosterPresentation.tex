@@ -82,8 +82,8 @@ Technology}
 \vspace{.1in}
 \begin{itemize}
 \item Model parameters are random
-\item \alert{Prior} distribution, $\pi(b)$, reflects beliefs about the parameters
-\item Sampling yields a likelihood function, $L(b)$
+\item \alert{Prior} distribution, $\pi$, reflects beliefs about the parameters
+\item Sampling yields a likelihood function, $L$
 \item \alert{Posterior} density: product of the prior and the likelihood
 \item Estimates involve integrals, e.g. 
 
@@ -101,7 +101,7 @@ $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d
 \begin{block} {\Large \textbf{\blue {Quasi-Monte Carlo Cubature}}}
 \vspace{.1in}
 \begin{itemize}
-\item Helps approximate integrals:
+\item Approximates integrals:
 
 \vspace{0.1in}
 
@@ -109,11 +109,9 @@ $\int_{[0, 1]^{d+1}}f(x)dx\approx \frac{1}{n} \sum_{i=0}^{n-1}f({x_i})$
 
 \vspace{.1in}
 
-where $\left\{x_i\right\}_{i=1}^n$ is a low-discrepancy sequence
+where $\left\{x_i\right\}_{i=1}^\infty$ is a low-discrepancy sequence
 
-\item A low-discrepancy sequence is a \alert{correlated} sequence whose empirical distribution matches the target distribution better than an IID sequence
-
-\item Plot of 256 Sobol sequence points that underwent the standard normal transformation:
+\item A \alert{low-discrepancy sequence} is a \alert{correlated} sequence whose empirical distribution matches the target distribution better than an IID sequence
 
 \end{itemize}
 \begin{center}
@@ -132,23 +130,23 @@ where $\left\{x_i\right\}_{i=1}^n$ is a low-discrepancy sequence
 
 \vspace{.05in}
 
-\item The prior: standard normal with respect to $\hat{\beta}_j$
+\item Standard norm prior for $\beta$
 
 \vspace{.05in}
 
-$\pi(\beta)=\frac{\exp{\left({-\frac{1}{2}\beta^T\beta}\right )}}{\sqrt{(2\pi)^{d+1}}}$
+$\pi(b)=\frac{\exp{\left({-\frac{1}{2}b^Tb}\right )}}{\sqrt{(2\pi)^{d+1}}}$
 
 \vspace{.05in}
 
-\item Widely used Bayesian inference estimator:
+\item Posterior mean estimates of $\beta$
 
 \vspace{.05in}
 
  $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db} =: \frac{\mu_j}{\mu}, ~for\ j=0, 1, 2,\ldots, d$
 
-\vspace{0.05in} 
+%\vspace{0.05in} 
 
-where $\hat{\beta}$ are the unknown parameters
+%where $\hat{\beta}$ are the unknown parameters
 \end{itemize}
 \end{block}
 
@@ -159,16 +157,16 @@ where $\hat{\beta}$ are the unknown parameters
 
 \begin{column}{.31\linewidth}
 
-\begin{block}{\Large \textbf{\blue {Choice of Density}}}
+\begin{block}{\Large \textbf{\blue {Choice of Density for Integration}}}
 \vspace{.1in}
 \begin{itemize}
-\item The ratio $\frac{\mu_j}{\mu}$ cannot be calculated analytically
+\item $\frac{\mu_j}{\mu}$ cannot be calculated analytically
 
-\item Thus, we rewrite $\mu$ and $\mu_j$  as such: 
+\item Rewrite $\mu$ as (similarly for $\mu_j$): 
 
 \vspace{.1in}
 
-$\mu=\int_{\Re^{d+1}}L(b)\pi(b)db=\int_{\Re^{d+1}}\frac{L(b)\pi(b)}{\rho(b)}\rho(b)db$,
+$\mu=\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db=\int_{\mathbb{R}^{d+1}}\frac{L(b)\pi(b)}{\rho(b)}\rho(b)db$,
 
 \vspace{.1in}
 
