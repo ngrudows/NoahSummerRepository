@@ -87,9 +87,9 @@ Technology}
 \item \alert{Posterior} density: product of the prior and the likelihood
 \item Estimates involve integrals, e.g. 
 
-\vspace{.1in}
+\vspace{.15in}
 
-$\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db} =: \frac{\mu_j}{\mu},\  j=0, \ldots, d$
+$\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(\boldsymbol{b})\pi(\boldsymbol{b})d\boldsymbol{b}}{\int_{\mathbb{R}^{d+1}}L(\boldsymbol{b})\pi(\boldsymbol{b})d\boldsymbol{b}} =: \frac{\mu_j}{\boldsymbol{\mu}}$  for  $j=0, 1, 2,\ldots, d$
 
 \vspace{.1in}
 
@@ -103,11 +103,11 @@ $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d
 \begin{itemize}
 \item Approximates integrals:
 
-\vspace{0.1in}
+\vspace{0.15in}
 
-$\int_{[0, 1]^{d+1}}f(x)dx\approx \frac{1}{n} \sum_{i=0}^{n-1}f({x_i})$ 
+$\int_{[0, 1]^{d+1}}f(\boldsymbol{x})d\boldsymbol{x}\approx \frac{1}{n} \sum_{i=0}^{n-1}f({x_i})$ 
 
-\vspace{.1in}
+\vspace{.15in}
 
 where $\left\{x_i\right\}_{i=1}^\infty$ is a low-discrepancy sequence
 
@@ -126,28 +126,36 @@ where $\left\{x_i\right\}_{i=1}^\infty$ is a low-discrepancy sequence
 \begin{itemize}
 \item Bayesian inference is applied to logistic regression.
 
-\item $t_i \sim \text{Ber} \left(\frac{\exp{\left(\beta_0+\sum_{j=1}^d\beta_j s_{ij}\right)}} {1+\exp \left({{\beta_0+\sum_{j=1}^d\beta_js_{ij}}}\right)}\right), \text{for } i=1, 2, \dots , M$
+\vspace{.15in}
 
-\vspace{.05in}
+\item $t_i \sim \text{Ber} \left(\frac{\exp{\left(\beta_0+\sum_{j=1}^d\beta_j s_{ij}\right)}} {1+\exp \left({{\beta_0+\sum_{j=1}^d\beta_js_{ij}}}\right)}\right), \text{ for } i=1, 2, \dots , M$
 
-\item Standard norm prior for $\beta$
+\vspace{.15in}
 
-\vspace{.05in}
+\item Standard norm prior for $\boldsymbol{\beta}$
 
-$\pi(b)=\frac{\exp{\left({-\frac{1}{2}b^Tb}\right )}}{\sqrt{(2\pi)^{d+1}}}$
+\vspace{.15in}
 
-\vspace{.05in}
+$\pi(\boldsymbol{b})=\frac{\exp{\left({-\frac{1}{2}\boldsymbol{b}^T\boldsymbol{b}}\right )}}{\sqrt{(2\pi)^{d+1}}}$
 
-\item Posterior mean estimates of $\beta$
+\vspace{.15in}
 
-\vspace{.05in}
+\item Posterior mean estimates of $\boldsymbol{\beta}$
 
- $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(b)\pi(b)db}{\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db} =: \frac{\mu_j}{\mu}, ~for\ j=0, 1, 2,\ldots, d$
+\vspace{.15in}
+
+ $\hat{\beta}_j=\frac{\int_{\mathbb{R}^{d+1}}b_jL(\boldsymbol{b})\pi(\boldsymbol{b})d\boldsymbol{b}}{\int_{\mathbb{R}^{d+1}}L(\boldsymbol{b})\pi(\boldsymbol{b})d\boldsymbol{b}} =: \frac{\mu_j}{\boldsymbol{\mu}}$, for $j=0, 1, 2,\ldots, d$
 
 %\vspace{0.05in} 
 
 %where $\hat{\beta}$ are the unknown parameters
 \end{itemize}
+\end{block}
+
+\vspace{0.75in}
+
+\begin{block}
+{\small{\black{A special appreciation and thank you to the IIT College of Science for providing the funding behind this research project.}}}
 \end{block}
 
 \end{column}
@@ -160,18 +168,27 @@ $\pi(b)=\frac{\exp{\left({-\frac{1}{2}b^Tb}\right )}}{\sqrt{(2\pi)^{d+1}}}$
 \begin{block}{\Large \textbf{\blue {Choice of Density for Integration}}}
 \vspace{.1in}
 \begin{itemize}
-\item $\frac{\mu_j}{\mu}$ cannot be calculated analytically
+\item $\mu_j/\boldsymbol{\mu}$ cannot be calculated analytically
 
-\item Rewrite $\mu$ as (similarly for $\mu_j$): 
+\item Rewrite $\boldsymbol{\mu}$ as (similarly for $\mu_j$): 
+
+\vspace{.15in}
+
+$\boldsymbol{\mu}=\int_{\mathbb{R}^{d+1}}L(\boldsymbol{b})\pi(\boldsymbol{b})d\boldsymbol{b}=\int_{\mathbb{R}^{d+1}}\frac{L(\boldsymbol{b})\pi(\boldsymbol{b})}{\rho(\boldsymbol{b})}\rho(\boldsymbol{b})d\boldsymbol{b}=\int_{[0,1]^{d+1}}f(\boldsymbol{x})d\boldsymbol{x}$,
+
+\vspace{.15in}
+
+where $f(\boldsymbol{x})=f(\boldsymbol{R}(\boldsymbol{b}))=\frac{L(\boldsymbol{b})\pi(\boldsymbol{b})}{\rho(\boldsymbol{b})}$
+
+\vspace{.15in}
+
+and $\rho(\boldsymbol{b})=\left|d\boldsymbol{R}/d\boldsymbol{b}\right|$ for some suitable $\boldsymbol{R}:\mathbb{R}^{d+1}\rightarrow [0,1]^{d+1}$
 
 \vspace{.1in}
 
-$\mu=\int_{\mathbb{R}^{d+1}}L(b)\pi(b)db=\int_{\mathbb{R}^{d+1}}\frac{L(b)\pi(b)}{\rho(b)}\rho(b)db$,
+\item Now, $\mu_j/\boldsymbol{\mu}$ can be approximated by sampling from $\rho(\boldsymbol{b})$ and applying quasi-Monte Carlo cubature
 
-\vspace{.1in}
-
-where $\rho(b)$ is some density.  Thus, $\frac{\mu_j}{\mu}$ can be estimated by sampling from $\rho(b)$ and applying quasi-Monte Carlo cubature.
-\item  We have the following choices for $\rho(b)$:
+\item  We made the following choices for $\rho(\boldsymbol{b})$:
 $\begin{array}{rrcl}
 1) & \rho & = & \pi \\
 2) & \rho & = & \rho_{\text{MLE}} = \text{Gaussian approximation to the}\\ 
@@ -188,30 +205,28 @@ $\begin{array}{rrcl}
 \vspace{.1in}
 \begin{itemize}
 
-\item Developed  \alert{function} \mcode{BayesianFunction} that \alert{automatically} estimates the unknown parameters $\hat{\beta}$ using GAIL (Choi Et al, 2015)  
+\item Developed  \alert{function} \mcode{BayesianInference} that \alert{automatically} estimates the unknown parameters $\hat{\boldsymbol{\beta}}$ using GAIL (Choi Et al, 2015)  
 
-\item User control over various inputs
+\item User inputs error tolerance, d, $\rho(\boldsymbol{b})$, and more
 
 \end{itemize}
 \end{block}
 
 \vspace{0.1in}
 
-\begin{block}{\Large \textbf{\blue {Use Case: Uniform Random s-Data}}}
-
-\vspace{0.1in}    
+\begin{block}{\Large \textbf{\blue {Uniform s-Data}}}    
 
 \lstset{basicstyle=\small} 
-\begin{lstlisting} 
-% s-Data:100 uniform random values in [-2,6] 
+\begin{lstlisting}  
 M = 100; %number of s-Data values
-s = (6+2)*rand(1,M)-2; %s-Data uniform
+s = (6+2)*rand(1,M)-2; % s-Data uniform in [-2,6]
 dim=2; absTol=0.0005; n=5;
-densityChoice = [true true true]; 
-%Use all 3 densities
-BayesianFunction(M, s, dim, absTol, 
+densityChoice = [true true true]; %Use all 3 densities
+BayesianInference(M, s, dim, absTol, 
                  densityChoice,n)
 \end{lstlisting}    
+
+\vspace{.1in}
 
 \begin{center}
 \scalebox{0.7}{
@@ -219,13 +234,15 @@ BayesianFunction(M, s, dim, absTol,
  \hline
  Density & Runtime (seconds) & Samples Taken \\
  \hline 
- $\rho = \pi$ & 86.088 & 2621440\\
- $\rho = \rho_{\text{MLE}}$ & 2.4954 & 81920\\
- $\rho \propto \pi \cdot \rho_{\text{MLE}}$ & 1.3744 & 40960\\
+ $\rho = \pi$ & 19.9122 & 655360\\
+ $\rho = \rho_{\text{MLE}}$ & 0.91593 & 24576\\
+ $\rho \propto \pi \cdot \rho_{\text{MLE}}$ & 0.99225 & 40960\\
  \hline
 \end{tabular}
 }
 \end{center}
+
+\vspace{.1in}
 
 \begin{center}
 \includegraphics[width=0.7\textwidth]{UniformRandom}
@@ -236,24 +253,19 @@ BayesianFunction(M, s, dim, absTol,
 \begin{column}{.015\linewidth} \end{column} %intercolumn space
 
 \begin{column}{.31\linewidth}
-\begin{block}{\Large \textbf{\blue {Use Case: Normal Random s-Data}}}
-
-\vspace{0.1in}    
+\begin{block}{\Large \textbf{\blue {Normal s-Data}}}    
 
 \lstset{basicstyle=\small} 
-\begin{lstlisting} 
-% s-Data: 100 normal random values
-% with mean 2 and variance 4      
-M = 100; %number of s-Data values
-u = 2; %mean
-sd = 2; %standard deviation
-s = sd.*randn(1,M)+u; %s-Data normal
+\begin{lstlisting}      
+M = 100; % number of s-Data values
+s = 2.*randn(1,M)+2; % s-Data normal with mean and sd 2
 dim=2; absTol=0.0005; n=5;
-densityChoice = [true true true];
-%Use all 3 densities
-BayesianFunction(M, s, dim, absTol, 
+densityChoice = [true true true]; % Use all 3 densities
+BayesianInference(M, s, dim, absTol, 
                  densityChoice,n)
 \end{lstlisting}     
+
+\vspace{.1in}
 
 \begin{center}
 \scalebox{0.7}{
@@ -261,13 +273,15 @@ BayesianFunction(M, s, dim, absTol,
  \hline
  Density & Runtime (seconds) & Samples Taken \\
  \hline 
- $\rho = \pi$ & 13.7314 & 327680\\
- $\rho = \rho_{\text{MLE}}$ & 0.89835 & 20480\\
- $\rho \propto \pi \cdot \rho_{\text{MLE}}$ & 1.4781 & 32768\\
+ $\rho = \pi$ & 23.7317 & 589824\\
+ $\rho = \rho_{\text{MLE}}$ & 0.78905 & 20480\\
+ $\rho \propto \pi \cdot \rho_{\text{MLE}}$ & 1.0491 & 20480\\
  \hline
 \end{tabular}
 }
 \end{center}
+
+\vspace{.1in}
 
 \begin{center}
 \includegraphics[width=0.7\textwidth]{NormalRandom}
@@ -277,16 +291,18 @@ BayesianFunction(M, s, dim, absTol,
 
 \bigskip
 
-\begin{block}{\Large \textbf{\blue {Discussion}}}
+\begin{block}{\Large \textbf{\blue {Conclusions}}}
 
 \vspace{.1in}
 
 \begin{itemize}
-\item Add some 
+\item Each density choice was successful in approximating posterior mean estimates within the desired tolerance level 
 
-\item Concluding 
+\item The choice of density directly affects the time taken 
 
-\item Remarks here
+\item Further work should be done to improve the run time of \mcode{BayesianInference} and generalize the function to solve a greater variety of problems
+
+\item These results will be compared in detail to other methods used today, specifically Markov Chain Monte Carlo
 \end{itemize}
 
 \end{block}
@@ -302,17 +318,8 @@ Ll.A., Tong, X., Zhang,Y., Zhou, X. \emph{{GAIL}:
   {G}uaranteed {A}utomatic {I}ntegration {L}ibrary (version 2.1)}, MATLAB
   software, 2015.
 
-\item Hickernell, F.J., Jimenez Rugama, Ll.A., Li, D.
-Adaptive Quasi-Monte Carlo Methods for Cubature.
-
-\item Brooks-Bartlett, Jonny. Probability Concepts Explained: Bayesian Inference for Parameter Estimation. Towards Data Science. Retrieved August 5, 2018.
+\item Hickernell, F.J., Jimenez Rugama, Ll.A., Li, D. \textit{Contemporary Computational Mathematics --- A Celebration of the 80th Birthday of Ian Sloan.}  Adaptive Quasi-Monte Carlo Methods for Cubature. pages 597-619, Springer-Verlag, 2018.
 \end{itemize}
-\end{block}
-
-\vspace{0.1in}
-
-\begin{block}
-{\footnotesize{\black{A special appreciation and thank you to the IIT College of Science for providing the funding behind this research project.}}}
 \end{block}
 
 \end{column}
